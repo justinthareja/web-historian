@@ -25,17 +25,54 @@ exports.initialize = function(pathsObj){
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
 
-exports.readListOfUrls = function(){
+exports.readListOfUrls = function(callback){
+  fs.readFile(exports.paths.list, function (err, fd) {
+    if (err) throw err;
+    console.log('RAW fd', fd);
+    fd = String(fd);
+    console.log('stringified FD:', fd);
+    callback(fd);
+  });
 };
 
-exports.isUrlInList = function(){
+exports.isUrlInList = function(url){
+  var contents;
+  exports.readListOfUrls(function(data) {
+    contents = data.split(',');
+  });
+  return contents.indexOf(url) > -1;
 };
 
-exports.addUrlToList = function(){
+exports.addUrlToList = function(url){
+  fs.appendFile(exports.paths.list, url + ',', function (err) {
+    if (err) throw err;
+    console.log('The url '+ url +' was appended to ' + exports.paths.list);
+  });
 };
 
-exports.isURLArchived = function(){
+
+exports.isURLArchived = function(url, callback){
+  fs.exists(exports.paths.archivedSites + '/' + url, function(exists) {
+    callback(exists);
+  });
 };
 
 exports.downloadUrls = function(){
+  // read list of urls
+  exports.readListOfUrls(function (data) {
+    list = data.split(',');
+
+    // iterates over the list
+    _.each(list, function (url) {
+      // at each url check to see if its archived
+      exports.isURLArchived(url, function (isArchived) {
+
+        if(!isArchived) {
+          // GET request to url
+          // archive HTML in archive/sites/URL-NAME-HERE
+        }
+
+      });
+    });
+  });
 };
