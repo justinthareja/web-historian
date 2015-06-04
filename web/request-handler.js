@@ -7,11 +7,14 @@ exports.handleRequest = function (req, res) {
   // console.log('request url =', request.url);
   // console.log('url path =', parseURL.parse(request.url).path);
 
-  // debugger
+  debugger
   // if(request.method === 'OPTIONS') {
   //   response.writeHead(200, httpHelpers.headers);
   //   response.end();
   // }
+  if (req.url === "/favicon.ico") {
+    httpHelpers.sendResponse(res, 404, null);
+  }
 
   //POST REQUESTS:::::
   var url = '';
@@ -23,8 +26,12 @@ exports.handleRequest = function (req, res) {
 
   req.on('end', function () {
 
+    if(url === undefined) {
+      debugger;
+    }
     // split the "url=" part out of the url
     url = url.split('=')[1];
+
 
     archive.isURLArchived(url, function (isArchived) {
       archive.isUrlInList(url, function(contents) {
@@ -40,7 +47,7 @@ exports.handleRequest = function (req, res) {
         // send loading.html
         var path = archive.paths.siteAssets + '/loading.html';
         archive.readFile(path, function (loadingHtml) {
-          httpHelpers.sendResponse(res, 200, path);
+          httpHelpers.sendResponse(res, 200, loadingHtml);
         })
       });
     })
@@ -48,5 +55,6 @@ exports.handleRequest = function (req, res) {
 
   // res.end(archive.paths.list);
 };
+
 
 
