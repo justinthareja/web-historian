@@ -1,20 +1,46 @@
 var path = require('path');
-var archive = require('../helpers/archive-helpers');
-// require more modules/folders here!
+var archive = require('../helpers/archive-helpers.js');
+var httpHelpers = require('./http-helpers.js')
 
 exports.handleRequest = function (req, res) {
-  res.end(archive.paths.list);
+  // console.log('request url =', request.url);
+  // console.log('url path =', parseURL.parse(request.url).path);
+
+  // debugger
+  // if(request.method === 'OPTIONS') {
+  //   response.writeHead(200, httpHelpers.headers);
+  //   response.end();
+  // }
+
+  //POST REQUESTS:::::
+  var url = '';
+
+  request.on('data', function (chunk) {
+    url += chunk;
+  });
+
+  request.on('end', function () {
+    archive.isURLArchived(url, function (isArchived) {
+      archive.isUrlInList(url, function(contents) {
+        var isInList = contents.indexOf(url) > -1;
+        if(isArchived) {
+          var path = archive.paths.archivedSites + '/' + url;
+          archive.readFile(path, function(siteHtml) {
+            httpHelpers.sendResponse(res, 201, siteHtml)
+          });
+        } else if (!isInList) {
+          archive.addUrlToList(url);
+        }
+        // send loading.html
+        var path = archive.paths.siteAssets + '/loading.html';
+        archive.readFile(path, function (loadingHtml) {
+          httpHelpers.sendResponse(res, 200, path);
+        })
+      });
+    })
+  });
+
+  // res.end(archive.paths.list);
 };
 
-
-
-// web server needs 2 checks
-  // if it's archived?
-    // serve archived html file
-    // res.end()
-  // else if in the list?
-    // don't add it to the list
-  // else
-    // add it to the list
-  // send loading.html
 

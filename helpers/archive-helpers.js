@@ -27,22 +27,22 @@ exports.initialize = function(pathsObj){
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
 
-exports.readListOfUrls = function(callback){
-  fs.readFile(exports.paths.list, function (err, fd) {
+exports.readFile = function(path, callback){
+  fs.readFile(path, function (err, fd) {
     if (err) throw err;
-    console.log('RAW fd', fd);
     fd = String(fd);
-    console.log('stringified FD:', fd);
     callback(fd);
   });
 };
 
-exports.isUrlInList = function(url){
+exports.isUrlInList = function(url, callback){
   var contents;
-  exports.readListOfUrls(function(data) {
+  exports.readFile(exports.paths.list, function(data) {
     contents = data.split(',');
+    callback(contents);
+    // wherever we're calling isUrlInList, we will need to pass this logic into the callback
+    // return contents.indexOf(url) > -1;
   });
-  return contents.indexOf(url) > -1;
 };
 
 exports.addUrlToList = function(url){
@@ -59,34 +59,34 @@ exports.isURLArchived = function(url, callback){
   });
 };
 
-exports.getHtml = function (url, callback) {
-
+exports.getWebsiteHtml = function (url, callback) {
   request(url, function (error, response, body) {
     if (!error && response.statusCode == 200) {
-      console.log("request to", url, "successful. html =",body) // Show the HTML for the input URL
+      // console.log("request to", url, "successful. html =",body) // Show the HTML for the input URL
       callback(body);
     }
   });
 };
 
 exports.downloadUrls = function(){
-  exports.readListOfUrls(function (data) {
+
+  exports.readFile(exports.paths.list, function (data) {
     list = data.split(',');
 
     _.each(list, function (url) {
       exports.isURLArchived(url, function (isArchived) {
         if(!isArchived) {
-          exports.getHtml(url, function(html) {
+          exports.getWebsiteHtml(url, function(html) {
             var path = exports.paths.archivedSites + '/' + url;
             fs.writeFile(path, String(html), function(err) {
               if (err) throw err;
               console.log('successfully wrote html to', path);
             }); // end fs.writeFile
-          }); // end getHtml
+          }); // end getWebsiteHtml
         } // end if statement
       }); // end isURLArchived
     }); // end _.each
-  }); // end readListOfUrls
+  }); // end readFile
 }; // end downloadUrls
 
 
