@@ -60,34 +60,40 @@ exports.isURLArchived = function(url, callback){
 };
 
 exports.getWebsiteHtml = function (url, callback) {
+  console.log('getWebsiteHtml called');
   request(url, function (error, response, body) {
+    if(error) console.log(error);
     if (!error && response.statusCode == 200) {
-      // console.log("request to", url, "successful. html =",body) // Show the HTML for the input URL
+      console.log("(SUCCESS): request to:", url); // Show the HTML for the input URL
       callback(body);
     }
   });
 };
 
-exports.downloadUrls = function(){
+// exports.getWebsiteHtml('http://google.com', function (html) {
+//   console.log(html);
+// });
 
-  exports.readFile(exports.paths.list, function (data) {
-    list = data.split(',');
+// exports.downloadUrls = function(){
 
-    _.each(list, function (url) {
-      exports.isURLArchived(url, function (isArchived) {
-        if(!isArchived) {
-          exports.getWebsiteHtml(url, function(html) {
-            var path = exports.paths.archivedSites + '/' + url;
-            fs.writeFile(path, String(html), function(err) {
-              if (err) throw err;
-              console.log('successfully wrote html to', path);
-            }); // end fs.writeFile
-          }); // end getWebsiteHtml
-        } // end if statement
-      }); // end isURLArchived
-    }); // end _.each
-  }); // end readFile
-}; // end downloadUrls
+//   exports.readFile(exports.paths.list, function (data) {
+//     list = data.split(',');
+
+//     _.each(list, function (url) {
+//       exports.isURLArchived(url, function (isArchived) {
+//         if(!isArchived) {
+//           exports.getWebsiteHtml(url, function(html) {
+//             var path = exports.paths.archivedSites + '/' + url;
+//             fs.writeFile(path, String(html), function(err) {
+//               if (err) throw err;
+//               console.log('successfully wrote html to', path);
+//             }); // end fs.writeFile
+//           }); // end getWebsiteHtml
+//         } // end if statement
+//       }); // end isURLArchived
+//     }); // end _.each
+//   }); // end readFile
+// }; // end downloadUrls
 
 
 

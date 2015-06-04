@@ -25,6 +25,7 @@ exports.handleRequest = function (req, res) {
 
     // split the "url=" part out of the url
     url = url.split('=')[1];
+    console.log('url is', url);
 
     archive.isURLArchived(url, function (isArchived) {
       archive.isUrlInList(url, function(contents) {
@@ -32,18 +33,20 @@ exports.handleRequest = function (req, res) {
         if(isArchived) {
           var path = archive.paths.archivedSites + '/' + url;
           archive.readFile(path, function(siteHtml) {
-            httpHelpers.sendResponse(res, 201, siteHtml)
+            httpHelpers.sendResponse(res, 201, siteHtml);
           });
         } else if (!isInList) {
           archive.addUrlToList(url);
         }
         // send loading.html
-        var path = archive.paths.siteAssets + '/loading.html';
-        archive.readFile(path, function (loadingHtml) {
-          httpHelpers.sendResponse(res, 200, path);
-        })
+        var loadingPath = archive.paths.siteAssets + '/loading.html';
+        archive.readFile(loadingPath, function (loadingHtml) {
+          // TODO: stop the route to localhost:8080
+          // TODO: display proper loading.html on client
+          httpHelpers.sendResponse(res, 200, loadingPath);
+        });
       });
-    })
+    });
   });
 
   // res.end(archive.paths.list);

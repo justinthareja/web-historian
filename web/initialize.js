@@ -1,4 +1,7 @@
 var fs = require('fs');
+var htmlFetcher = require('../workers/htmlfetcher.js');
+var request = require('request');
+var archives = require('../helpers/archive-helpers.js');
 
 // Sync is ok here because this is called just once on startup.
 module.exports = function () {
@@ -20,4 +23,24 @@ module.exports = function () {
     // We use fs.mkdirSync to create the folder
     fs.mkdirSync("./archives/sites");
   }
+
+  // cache urls in sites.txt
+  htmlFetcher.downloadUrls();
+
+  // var url = 'http://www.google.com';
+  // request(url, function (error, response, body) {
+  //   if (!error && response.statusCode == 200) {
+  //     console.log("successfully pinged:", url);
+  //     var path = archives.paths.archivedSites+'/test.txt';
+  //     fs.appendFile(path, body, function(err) {
+  //       if (err) {
+  //         console.log(err);
+  //       }
+  //       console.log("successfully wrote to:", path);
+  //     });
+  //   }
+  // });
+
 };
+
+
