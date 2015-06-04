@@ -1,6 +1,7 @@
 var path = require('path');
 var archive = require('../helpers/archive-helpers.js');
-var httpHelpers = require('./http-helpers.js')
+var httpHelpers = require('./http-helpers.js');
+
 
 exports.handleRequest = function (req, res) {
   // console.log('request url =', request.url);
@@ -15,11 +16,16 @@ exports.handleRequest = function (req, res) {
   //POST REQUESTS:::::
   var url = '';
 
-  request.on('data', function (chunk) {
+  req.on('data', function (chunk) {
     url += chunk;
   });
 
-  request.on('end', function () {
+
+  req.on('end', function () {
+
+    // split the "url=" part out of the url
+    url = url.split('=')[1];
+
     archive.isURLArchived(url, function (isArchived) {
       archive.isUrlInList(url, function(contents) {
         var isInList = contents.indexOf(url) > -1;
