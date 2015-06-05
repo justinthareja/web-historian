@@ -4,8 +4,6 @@ var archive = require('../helpers/archive-helpers.js');
 
 
 module.exports = function () {
-  // debugger;
-  // archive.downloadUrls();
 
   // if the archive folder doesn't exist, create it.
   if (!fs.existsSync("./archives")) {
