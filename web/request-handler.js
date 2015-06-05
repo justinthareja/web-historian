@@ -27,69 +27,30 @@ exports.handleRequest = function (req, res) {
             var path = archive.paths.archivedSites + '/' + url;
             console.log('path=',path);
             archive.readFile(path, function(siteHtml) {
-              console.log('---within readFile callback---')
-              httpHelpers.sendResponse(res, 201, siteHtml)
+              console.log('---within readFile callback---');
+              httpHelpers.sendResponse(res, 201, siteHtml);
             });
           } else if (!isInList) {
             archive.addUrlToList(url);
+          } 
+          if(!isArchived) {
+            var path = archive.paths.siteAssets + '/loading.html';
+            archive.readFile(path, function (loadingHtml) {
+              httpHelpers.sendResponse(res, 200, loadingHtml);
+            });
           }
-          // send loading.html
-          var path = archive.paths.siteAssets + '/loading.html';
-          archive.readFile(path, function (loadingHtml) {
-            httpHelpers.sendResponse(res, 200, loadingHtml);
-          })
-        });
-      })
-    });
-  }
-  else if (req.url === "/favicon.ico") {
-    httpHelpers.sendResponse(res, 404, null);
-  }
-
-<<<<<<< HEAD
-  // debugger
-  // if(request.method === 'OPTIONS') {
-  //   response.writeHead(200, httpHelpers.headers);
-  //   response.end();
-  // }
-
-  //POST REQUESTS:::::
-  var url = '';
-
-  req.on('data', function (chunk) {
-    url += chunk;
-  });
-
-
-  req.on('end', function () {
-
-    // split the "url=" part out of the url
-    url = url.split('=')[1];
-    console.log('url is', url);
-
-    archive.isURLArchived(url, function (isArchived) {
-      archive.isUrlInList(url, function(contents) {
-        var isInList = contents.indexOf(url) > -1;
-        if(isArchived) {
-          var path = archive.paths.archivedSites + '/' + url;
-          archive.readFile(path, function(siteHtml) {
-            httpHelpers.sendResponse(res, 201, siteHtml);
-          });
-        } else if (!isInList) {
-          archive.addUrlToList(url);
-        }
-        // send loading.html
-        var loadingPath = archive.paths.siteAssets + '/loading.html';
-        archive.readFile(loadingPath, function (loadingHtml) {
-          // TODO: stop the route to localhost:8080
-          // TODO: display proper loading.html on client
-          httpHelpers.sendResponse(res, 200, loadingPath);
         });
       });
     });
-  });
+  }
+  else if (req.method === 'GET') {
+    archive.readFile(archive.paths.index, function (html) {
+      httpHelpers.sendResponse(res, 200, html);
+    });
+  }
+  else {
+    httpHelpers.sendResponse(res, 404, null);
+  }
 
-  // res.end(archive.paths.list);
-=======
->>>>>>> 3df6e816d8085015a3ac8dda882e46735632932c
+
 };

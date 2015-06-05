@@ -14,7 +14,8 @@ var request = require('request');
 exports.paths = {
   'siteAssets' : path.join(__dirname, '../web/public'),
   'archivedSites' : path.join(__dirname, '../archives/sites'),
-  'list' : path.join(__dirname, '../archives/sites.txt')
+  'list' : path.join(__dirname, '../archives/sites.txt'),
+  'index': path.join(__dirname, '../web/public/index.html')
 };
 
 // Used for stubbing paths for jasmine tests, do not modify
@@ -55,7 +56,7 @@ exports.addUrlToList = function(url){
 
 
 exports.isURLArchived = function(url, callback){
-  path = exports.paths.archivedSites + '/' + url
+  path = exports.paths.archivedSites + '/' + url;
   fs.exists(path, function(exists) {
     callback(exists);
   });
@@ -68,7 +69,9 @@ exports.getWebsiteHtml = function (url, callback) {
 
   request(url, function (error, response, body) {
       console.log('request callback fired');
-      if(error) { console.log('error in getWebsiteHtml', error)}
+      if(error) {
+        console.log('error in getWebsiteHtml', error);
+      }
 
       callback(body);
   });
@@ -87,7 +90,6 @@ exports.downloadUrls = function(){
         if(!isArchived) {
           exports.getWebsiteHtml(url, function(html) {
             console.log('...currently in getWebsiteHtml callback....');
-            debugger
             var path = exports.paths.archivedSites + '/' + url;
             fs.writeFile(path, String(html), function(err) {
               if (err) throw err;
