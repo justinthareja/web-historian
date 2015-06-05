@@ -15,7 +15,8 @@
     "mocha": "^1.21.4",
     "q": "^1.0.0",
     "request": "^2.34.0",
-    "underscore": "^1.6.0"
+    "underscore": "^1.6.0",
+    "node-inspector": "~0.10.1"
   },
   "scripts": {
     "test": "node ./web/basic-server.js & mocha test/test.js; RES=$?; kill %1; exit $RES",

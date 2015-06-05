@@ -46,6 +46,7 @@ exports.isUrlInList = function(url, callback){
 };
 
 exports.addUrlToList = function(url){
+
   fs.appendFile(exports.paths.list, url + ',', function (err) {
     if (err) throw err;
     console.log('The url '+ url +' was appended to ' + exports.paths.list);
@@ -54,64 +55,48 @@ exports.addUrlToList = function(url){
 
 
 exports.isURLArchived = function(url, callback){
-  fs.exists(exports.paths.archivedSites + '/' + url, function(exists) {
+  path = exports.paths.archivedSites + '/' + url
+  fs.exists(path, function(exists) {
     callback(exists);
   });
 };
 
 exports.getWebsiteHtml = function (url, callback) {
-  console.log('getWebsiteHtml called');
+  url = "http://" + url;
+
+  console.log('url right before request =', url);
+
   request(url, function (error, response, body) {
-    if(error) console.log(error);
-    if (!error && response.statusCode == 200) {
-      console.log("(SUCCESS): request to:", url); // Show the HTML for the input URL
+      console.log('request callback fired');
+      if(error) { console.log('error in getWebsiteHtml', error)}
+
       callback(body);
-    }
   });
+
 };
 
-// exports.getWebsiteHtml('http://google.com', function (html) {
-//   console.log(html);
-// });
 
-// exports.downloadUrls = function(){
+exports.downloadUrls = function(){
+  exports.readFile(exports.paths.list, function (data) {
+    list = data.split(',');
+    list.pop();
 
-//   exports.readFile(exports.paths.list, function (data) {
-//     list = data.split(',');
-
-//     _.each(list, function (url) {
-//       exports.isURLArchived(url, function (isArchived) {
-//         if(!isArchived) {
-//           exports.getWebsiteHtml(url, function(html) {
-//             var path = exports.paths.archivedSites + '/' + url;
-//             fs.writeFile(path, String(html), function(err) {
-//               if (err) throw err;
-//               console.log('successfully wrote html to', path);
-//             }); // end fs.writeFile
-//           }); // end getWebsiteHtml
-//         } // end if statement
-//       }); // end isURLArchived
-//     }); // end _.each
-//   }); // end readFile
-// }; // end downloadUrls
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    _.each(list, function (url) {
+      exports.isURLArchived(url, function (isArchived) {
+        isArchived = false;
+        if(!isArchived) {
+          exports.getWebsiteHtml(url, function(html) {
+            console.log('...currently in getWebsiteHtml callback....');
+            debugger
+            var path = exports.paths.archivedSites + '/' + url;
+            fs.writeFile(path, String(html), function(err) {
+              if (err) throw err;
+              console.log('successfully wrote html to', path);
+            }); // end fs.writeFile
+          }); // end getWebsiteHtml
+        } // end if statement
+      }); // end isURLArchived
+    }); // end _.each
+  }); // end readFile
+}; // end downloadUrls
 

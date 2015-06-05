@@ -1,12 +1,52 @@
 var path = require('path');
 var archive = require('../helpers/archive-helpers.js');
 var httpHelpers = require('./http-helpers.js');
+var request = require('request');
 
 
 exports.handleRequest = function (req, res) {
-  // console.log('request url =', request.url);
-  // console.log('url path =', parseURL.parse(request.url).path);
+  if (req.method === 'POST' && req.url ==='/client-request') {
+    var url = '';
 
+    req.on('data', function (chunk) {
+      url += chunk;
+    });
+
+    req.on('end', function () {
+      url = url.split('=')[1];
+      console.log('url=',url);
+
+      archive.isURLArchived(url, function (isArchived) {
+        console.log('---within isURLArchived callback---');
+        console.log('isArchived =', isArchived);
+        archive.isUrlInList(url, function(contents) {
+          console.log('---within isURLInList callback---');
+          console.log('contents=', contents);
+          var isInList = contents.indexOf(url) > -1;
+          if(isArchived) {
+            var path = archive.paths.archivedSites + '/' + url;
+            console.log('path=',path);
+            archive.readFile(path, function(siteHtml) {
+              console.log('---within readFile callback---')
+              httpHelpers.sendResponse(res, 201, siteHtml)
+            });
+          } else if (!isInList) {
+            archive.addUrlToList(url);
+          }
+          // send loading.html
+          var path = archive.paths.siteAssets + '/loading.html';
+          archive.readFile(path, function (loadingHtml) {
+            httpHelpers.sendResponse(res, 200, loadingHtml);
+          })
+        });
+      })
+    });
+  }
+  else if (req.url === "/favicon.ico") {
+    httpHelpers.sendResponse(res, 404, null);
+  }
+
+<<<<<<< HEAD
   // debugger
   // if(request.method === 'OPTIONS') {
   //   response.writeHead(200, httpHelpers.headers);
@@ -50,6 +90,6 @@ exports.handleRequest = function (req, res) {
   });
 
   // res.end(archive.paths.list);
+=======
+>>>>>>> 3df6e816d8085015a3ac8dda882e46735632932c
 };
-
-
