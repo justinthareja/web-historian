@@ -46,7 +46,7 @@ exports.isUrlInList = function(url, callback){
 };
 
 exports.addUrlToList = function(url){
-  debugger
+
   fs.appendFile(exports.paths.list, url + ',', function (err) {
     if (err) throw err;
     console.log('The url '+ url +' was appended to ' + exports.paths.list);
@@ -55,29 +55,37 @@ exports.addUrlToList = function(url){
 
 
 exports.isURLArchived = function(url, callback){
-  fs.exists(exports.paths.archivedSites + '/' + url, function(exists) {
+  path = exports.paths.archivedSites + '/' + url
+  fs.exists(path, function(exists) {
     callback(exists);
   });
 };
 
 exports.getWebsiteHtml = function (url, callback) {
+  url = "http://" + url;
+
+  console.log('url right before request =', url);
+
   request(url, function (error, response, body) {
-    if (!error && response.statusCode == 200) {
-      // console.log("request to", url, "successful. html =",body) // Show the HTML for the input URL
+      console.log('request callback fired');
+      if(error) { console.log('error in getWebsiteHtml', error)}
       callback(body);
-    }
   });
+
 };
 
 exports.downloadUrls = function(){
-
   exports.readFile(exports.paths.list, function (data) {
     list = data.split(',');
+    list.pop();
 
     _.each(list, function (url) {
       exports.isURLArchived(url, function (isArchived) {
+        isArchived = false;
         if(!isArchived) {
           exports.getWebsiteHtml(url, function(html) {
+            console.log('...currently in getWebsiteHtml callback....');
+            debugger
             var path = exports.paths.archivedSites + '/' + url;
             fs.writeFile(path, String(html), function(err) {
               if (err) throw err;
@@ -89,6 +97,7 @@ exports.downloadUrls = function(){
     }); // end _.each
   }); // end readFile
 }; // end downloadUrls
+
 
 
 

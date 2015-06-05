@@ -1,7 +1,12 @@
 var fs = require('fs');
-
+var archive = require('../helpers/archive-helpers.js');
 // Sync is ok here because this is called just once on startup.
+
+
 module.exports = function () {
+  // debugger;
+  // archive.downloadUrls();
+
   // if the archive folder doesn't exist, create it.
   if (!fs.existsSync("./archives")) {
     // We use fs.mkdirSync to create the folder
@@ -20,4 +25,7 @@ module.exports = function () {
     // We use fs.mkdirSync to create the folder
     fs.mkdirSync("./archives/sites");
   }
+
+
+
 };
