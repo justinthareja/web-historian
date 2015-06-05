@@ -5,20 +5,6 @@ var request = require('request');
 
 
 exports.handleRequest = function (req, res) {
-  // console.log('request url =', request.url);
-  // console.log('url path =', parseURL.parse(request.url).path);
-
-  // if(request.method === 'OPTIONS') {
-  //   response.writeHead(200, httpHelpers.headers);
-  //   response.end();
-  // }
-  //
-
-  archive.downloadUrls();
-
-
-  //POST REQUESTS:::::
-
   if (req.method === 'POST' && req.url ==='/client-request') {
     var url = '';
 
@@ -26,22 +12,22 @@ exports.handleRequest = function (req, res) {
       url += chunk;
     });
 
-
     req.on('end', function () {
-
-      // if(url === undefined) {
-      //   debugger;
-      // }
-      // split the "url=" part out of the url
       url = url.split('=')[1];
-
+      console.log('url=',url);
 
       archive.isURLArchived(url, function (isArchived) {
+        console.log('---within isURLArchived callback---');
+        console.log('isArchived =', isArchived);
         archive.isUrlInList(url, function(contents) {
+          console.log('---within isURLInList callback---');
+          console.log('contents=', contents);
           var isInList = contents.indexOf(url) > -1;
           if(isArchived) {
             var path = archive.paths.archivedSites + '/' + url;
+            console.log('path=',path);
             archive.readFile(path, function(siteHtml) {
+              console.log('---within readFile callback---')
               httpHelpers.sendResponse(res, 201, siteHtml)
             });
           } else if (!isInList) {
@@ -61,6 +47,3 @@ exports.handleRequest = function (req, res) {
   }
 
 };
-
-
-
